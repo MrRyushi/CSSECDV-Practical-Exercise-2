@@ -256,8 +256,46 @@ public class Frame extends javax.swing.JFrame {
         frameView.show(Container, "registerPnl");
     }
     
-    public void registerAction(String username, String password, String confpass){
-        main.sqlite.addUser(username, password);
+    public boolean registerAction(String username, String password, String confpass){
+        return main.sqlite.addUser(username, password);
+    }
+
+    // Show the correct home page based on user role
+    public void showHomeByRole(int role) {
+        // Hide all navigation buttons first
+        adminBtn.setVisible(false);
+        managerBtn.setVisible(false);
+        staffBtn.setVisible(false);
+        clientBtn.setVisible(false);
+        // Show only the button for the user's role and show the correct home page
+        switch (role) {
+            case 5: // Admin
+                adminBtn.setVisible(true);
+                adminHomePnl.showPnl("home");
+                contentView.show(Content, "adminHomePnl");
+                break;
+            case 4: // Manager
+                managerBtn.setVisible(true);
+                managerHomePnl.showPnl("home");
+                contentView.show(Content, "managerHomePnl");
+                break;
+            case 3: // Staff
+                staffBtn.setVisible(true);
+                staffHomePnl.showPnl("home");
+                contentView.show(Content, "staffHomePnl");
+                break;
+            case 2: // Client
+                clientBtn.setVisible(true);
+                clientHomePnl.showPnl("home");
+                contentView.show(Content, "clientHomePnl");
+                break;
+            default:
+                // Disabled or unknown role: go back to login
+                frameView.show(Container, "loginPnl");
+                javax.swing.JOptionPane.showMessageDialog(this, "Your account is disabled or has an invalid role.", "Access Denied", javax.swing.JOptionPane.ERROR_MESSAGE);
+                return;
+        }
+        frameView.show(Container, "homePnl");
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

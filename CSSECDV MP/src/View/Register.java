@@ -1,5 +1,7 @@
 package View;
 
+import javax.swing.JOptionPane;
+
 public class Register extends javax.swing.JPanel {
 
     public Frame frame;
@@ -96,8 +98,15 @@ public class Register extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerBtnActionPerformed
-        frame.registerAction(usernameFld.getText(), passwordFld.getText(), confpassFld.getText());
-        frame.loginNav();
+        boolean success = false;
+        if (frame != null) {
+            success = frame.registerAction(usernameFld.getText(), passwordFld.getText(), confpassFld.getText());
+        }
+        if (success) {
+            frame.loginNav();
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid credentials.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_registerBtnActionPerformed
 
     private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed

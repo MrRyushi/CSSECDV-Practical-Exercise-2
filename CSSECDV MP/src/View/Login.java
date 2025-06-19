@@ -1,8 +1,15 @@
 package View;
 
+import javax.swing.JOptionPane;
+import java.util.HashMap;
+
 public class Login extends javax.swing.JPanel {
 
     public Frame frame;
+    
+    // In-memory tracking of failed login attempts
+    private static HashMap<String, Integer> failedAttempts = new HashMap<>();
+    private static final int MAX_ATTEMPTS = 3;
     
     public Login() {
         initComponents();
@@ -82,7 +89,43 @@ public class Login extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
-        frame.mainNav();
+        String username = usernameFld.getText();
+        String password = new String(passwordFld.getPassword());
+        boolean authenticated = false;
+        int role = -1;
+        boolean isLocked = false;
+        if (frame != null && frame.main != null && frame.main.sqlite != null) {
+            // Check if account is locked
+            int locked = frame.main.sqlite.getUserLocked(username);
+            if (locked == 1) {
+                isLocked = true;
+            } else {
+                authenticated = frame.main.sqlite.authenticateUser(username, password);
+                if (authenticated) {
+                    role = frame.main.sqlite.getUserRole(username);
+                }
+            }
+        }
+        if (isLocked) {
+            JOptionPane.showMessageDialog(this, "Your account is locked. Please contact an administrator.", "Account Locked", JOptionPane.ERROR_MESSAGE);
+        } else if (authenticated && role > 0) {
+            failedAttempts.remove(username); // Reset on success
+            frame.showHomeByRole(role);
+        } else if (authenticated && role <= 0) {
+            JOptionPane.showMessageDialog(this, "Your account is disabled or has an invalid role.", "Access Denied", JOptionPane.ERROR_MESSAGE);
+        } else {
+            // Failed login: increment attempts
+            int attempts = failedAttempts.getOrDefault(username, 0) + 1;
+            failedAttempts.put(username, attempts);
+            if (attempts >= MAX_ATTEMPTS) {
+                if (frame != null && frame.main != null && frame.main.sqlite != null) {
+                    frame.main.sqlite.lockUser(username);
+                }
+                JOptionPane.showMessageDialog(this, "Your account is locked due to too many failed login attempts.", "Account Locked", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }//GEN-LAST:event_loginBtnActionPerformed
 
     private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerBtnActionPerformed

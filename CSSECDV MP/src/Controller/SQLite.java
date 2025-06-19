@@ -198,23 +198,30 @@ public class SQLite {
         }
     }
 
-    public void addUser(String username, String password) {
+    public boolean addUser(String username, String password) {
         String hashedPassword = hashPassword(password);
-        String sql = "INSERT INTO users(username,password) VALUES('" + username + "','" + hashedPassword + "')";
+        String sql = "INSERT INTO users(username,password) VALUES(?,?)";
         try (Connection conn = DriverManager.getConnection(driverURL);
-             Statement stmt = conn.createStatement()){
-            stmt.execute(sql);
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            pstmt.executeUpdate();
+            return true;
         } catch (Exception ex) {
             System.out.print(ex);
+            return false;
         }
     }
 
     public void addUser(String username, String password, int role) {
         String hashedPassword = hashPassword(password);
-        String sql = "INSERT INTO users(username,password,role) VALUES('" + username + "','" + hashedPassword + "','" + role + "')";
+        String sql = "INSERT INTO users(username,password,role) VALUES(?,?,?)";
         try (Connection conn = DriverManager.getConnection(driverURL);
-             Statement stmt = conn.createStatement()){
-            stmt.execute(sql);
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashedPassword);
+            pstmt.setInt(3, role);
+            pstmt.executeUpdate();
         } catch (Exception ex) {
             System.out.print(ex);
         }
@@ -326,5 +333,70 @@ public class SQLite {
             System.out.print(ex);
         }
         return product;
+    }
+
+    // Authenticate user by username and password
+    public boolean authenticateUser(String username, String password) {
+        String sql = "SELECT password FROM users WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String storedHash = rs.getString("password");
+                    String inputHash = hashPassword(password);
+                    return storedHash.equals(inputHash);
+                }
+            }
+        } catch (Exception ex) {
+            System.out.print(ex);
+        }
+        return false;
+    }
+
+    // Get the role of a user by username
+    public int getUserRole(String username) {
+        String sql = "SELECT role FROM users WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("role");
+                }
+            }
+        } catch (Exception ex) {
+            System.out.print(ex);
+        }
+        return -1; // Return -1 if user not found or error
+    }
+
+    // Lock a user account by username
+    public void lockUser(String username) {
+        String sql = "UPDATE users SET locked = 1 WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.executeUpdate();
+        } catch (Exception ex) {
+            System.out.print(ex);
+        }
+    }
+
+    // Get the locked status of a user by username
+    public int getUserLocked(String username) {
+        String sql = "SELECT locked FROM users WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(driverURL);
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("locked");
+                }
+            }
+        } catch (Exception ex) {
+            System.out.print(ex);
+        }
+        return -1; // Return -1 if user not found or error
     }
 }
