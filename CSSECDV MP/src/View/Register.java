@@ -98,9 +98,15 @@ public class Register extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerBtnActionPerformed
+        String password = new String(passwordFld.getPassword());
+        String confpass = new String(confpassFld.getPassword());
+        if (!password.equals(confpass)) {
+            JOptionPane.showMessageDialog(this, "Passwords do not match.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         boolean success = false;
         if (frame != null) {
-            success = frame.registerAction(usernameFld.getText(), passwordFld.getText(), confpassFld.getText());
+            success = frame.registerAction(usernameFld.getText(), password, confpass);
         }
         if (success) {
             frame.loginNav();
