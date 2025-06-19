@@ -100,6 +100,12 @@ public class Register extends javax.swing.JPanel {
     private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerBtnActionPerformed
         String password = new String(passwordFld.getPassword());
         String confpass = new String(confpassFld.getPassword());
+
+        if(password.length() < 8) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         if (!password.equals(confpass)) {
             JOptionPane.showMessageDialog(this, "Passwords do not match.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
             return;
