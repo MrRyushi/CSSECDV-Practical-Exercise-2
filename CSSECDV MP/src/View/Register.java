@@ -100,8 +100,19 @@ public class Register extends javax.swing.JPanel {
     private void registerBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerBtnActionPerformed
         String password = new String(passwordFld.getPassword());
         String confpass = new String(confpassFld.getPassword());
+        String username = usernameFld.getText();
 
-        if(password.length() < 8) {
+        boolean success = false;
+        if (frame != null) {
+            success = frame.registerAction(username, password, confpass);
+        }
+
+        if (!success) {
+            JOptionPane.showMessageDialog(this, "Username already taken.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (password.length() < 8) {
             JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -110,15 +121,8 @@ public class Register extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Passwords do not match.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        boolean success = false;
-        if (frame != null) {
-            success = frame.registerAction(usernameFld.getText(), password, confpass);
-        }
-        if (success) {
-            frame.loginNav();
-        } else {
-            JOptionPane.showMessageDialog(this, "Invalid credentials.", "Registration Failed", JOptionPane.ERROR_MESSAGE);
-        }
+
+        frame.loginNav();
     }//GEN-LAST:event_registerBtnActionPerformed
 
     private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
