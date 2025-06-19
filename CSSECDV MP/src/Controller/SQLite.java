@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 public class SQLite {
 
     public int DEBUG_MODE = 0;
-    String driverURL = "jdbc:sqlite:" + "database.db";
+    String driverURL = "jdbc:sqlite:" + System.getProperty("user.dir") + "/database.db";
 
     public void createNewDatabase() {
         try (Connection conn = DriverManager.getConnection(driverURL)) {
